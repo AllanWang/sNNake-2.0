@@ -9,15 +9,24 @@ import java.awt.*;
  */
 public interface SnakeContract {
 
-    void draw(Graphics g);
+    void drawScore(Graphics g);
 
-    void step();
+    Color getColor();
+
+    C getHead();
+
+    /**
+     * Move head and send status updates to the game
+     *
+     * @param map      data map
+     * @param stage    the loop number
+     * @param callback status updates for the game
+     */
+    void step(int[][] map, int stage, SnakeGameContract callback);
 
     void score(int points);
 
     int getScore();
-
-    SnakeQueue getPositions();
 
     void onKeyPress(int direction);
 

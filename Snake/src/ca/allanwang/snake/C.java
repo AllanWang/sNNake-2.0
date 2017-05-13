@@ -31,6 +31,27 @@ public class C {
     }
 
     @Override
+    public int hashCode() {
+        return x << 16 + y;
+    }
+
+    public boolean isWithin(C c, int proximity) {
+        return Math.abs(c.x - x) < proximity && Math.abs(c.y - y) < proximity;
+    }
+
+    public int set(int[][] map, int toSet) {
+        int original = get(map);
+        if (x < 0 || y < 0 || y >= map.length || x >= map[0].length)
+            return SnakeGame.MAP_INVALID;
+        map[y][x] = toSet;
+        return original;
+    }
+
+    public int get(int[][] map) {
+        return map[y][x];
+    }
+
+    @Override
     public String toString() {
         return String.format("C(%d, %d)", x, y);
     }

@@ -9,8 +9,8 @@ import java.awt.*;
 public class ColorUtils {
 
     public static final Color APPLE = Color.RED,
-            GAME_BACKGROUND = Color.BLACK,
-            BACKGROUND = Color.BLACK.brighter();
+            BORDER = Color.WHITE,
+            BACKGROUND = Color.BLACK;
 
     public static Color tint(Color color) {
         return color.darker();

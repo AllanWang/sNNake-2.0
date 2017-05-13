@@ -22,7 +22,16 @@ public class SnakeQueue extends LinkedList<C> {
         return true;
     }
 
-    public void move(int direction) {
+    @Override
+    public C remove() {
+        return super.removeLast();
+    }
+
+    public C getHead() {
+        return getFirst();
+    }
+
+    public C move(int direction) {
         C prev = getFirst();
         switch (direction) {
             case SnakeGame.UP:
@@ -38,6 +47,7 @@ public class SnakeQueue extends LinkedList<C> {
                 add(new C(prev.x - 1, prev.y));
                 break;
         }
+        return getFirst();
     }
 
     @Override
