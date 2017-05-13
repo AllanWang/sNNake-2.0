@@ -11,9 +11,12 @@ import java.awt.event.KeyListener;
 
 public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract {
 
-    //variables for Window
+    // player config
+    private final static int PLAYER_COUNT = 2, CPU_COUNT = 0;
+
+    // variables for Window
     private final static int WINDOW_HEIGHT_DP = 100, WINDOW_WIDTH_DP = 100, DELAY = 100,
-            BORDER_DP = 2, SCORE_BOARD_HEIGHT_DP = 5, PLAYER_COUNT = 2, CPU_COUNT = 0,
+            BORDER_DP = 2, SCORE_BOARD_HEIGHT_DP = 5,
             SNAKE_COUNT = PLAYER_COUNT + CPU_COUNT;
 
     final static int GAME_HEIGHT_DP = WINDOW_HEIGHT_DP - BORDER_DP * 3 - SCORE_BOARD_HEIGHT_DP,
@@ -43,7 +46,6 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
 
     private final Snake[] snakes = new Snake[SNAKE_COUNT];
     private int snakeCount = SNAKE_COUNT, applesToSpawn = SNAKE_COUNT;
-    private final C[] apples = new C[SNAKE_COUNT];
     private final int[][] map = new int[GAME_HEIGHT_DP][GAME_WIDTH_DP];
 
     //in game stuff
@@ -115,6 +117,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
 
 
     public SnakeGame() {
+        validateArgs();
         window = new JFrame();
         window.setTitle("sNNake 2.0");
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -123,6 +126,10 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
         window.add(this);
         window.addKeyListener(this);
         gameReset();
+    }
+
+    private void validateArgs() {
+        if (SNAKE_COUNT > 4) throw new IllegalArgumentException("We can have at most 4 snakes");
     }
 
     private void gameReset() {
@@ -249,9 +256,10 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
     @Override
     public void sendSnakeStatus(int snakeId, int mapFlag) {
         if (mapFlag == MAP_EMPTY) return;
-        if (mapFlag == MAP_APPLE)
+        if (mapFlag == MAP_APPLE) {
             snakes[snakeId].score(FLAG_SCORE_APPLE);
-        else if ((mapFlag & MAP_SNAKE_MASK) == MAP_SNAKE_MASK) { // snake collision
+            applesToSpawn++;
+        } else if ((mapFlag & MAP_SNAKE_MASK) == MAP_SNAKE_MASK) { // snake collision
             int otherSnake = mapFlag % MAP_SNAKE_MOD;
             snakes[snakeId].terminate(window, otherSnake);
             if ((mapFlag & MAP_HEAD_MASK) == MAP_HEAD_MASK)  // other snake died as well
