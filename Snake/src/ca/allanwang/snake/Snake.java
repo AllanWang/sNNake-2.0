@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Iterator;
 
 /**
  * Created by Allan Wang on 2017-05-12.
@@ -23,8 +22,8 @@ public class Snake implements SnakeContract {
     public Snake(int id, int size, Window window) {
         this.id = id;
         this.positions = new SnakeQueue(size);
-        switch (id + 1) {
-            case 1:
+        switch (id) {
+            case 0:
                 color = Color.GREEN;
                 pendingDirection = SnakeGame.RIGHT;
                 positions.add(new C(SnakeGame.INIT_BORDER_DP, SnakeGame.INIT_BORDER_DP));
@@ -48,7 +47,7 @@ public class Snake implements SnakeContract {
                     }
                 };
                 break;
-            case 2:
+            case 1:
                 color = Color.CYAN;
                 pendingDirection = SnakeGame.LEFT;
                 positions.add(new C(SnakeGame.GAME_WIDTH_DP - SnakeGame.INIT_BORDER_DP, SnakeGame.GAME_HEIGHT_DP - SnakeGame.INIT_BORDER_DP));
@@ -72,37 +71,24 @@ public class Snake implements SnakeContract {
                     }
                 };
                 break;
-            case 3: //TODO add more key bindings?
+            case 2: //TODO add more key bindings?
                 color = Color.BLUE;
                 pendingDirection = SnakeGame.RIGHT;
                 positions.add(new C(SnakeGame.INIT_BORDER_DP, SnakeGame.GAME_HEIGHT_DP - SnakeGame.INIT_BORDER_DP));
                 break;
-            case 4:
+            case 3:
                 color = Color.ORANGE;
                 pendingDirection = SnakeGame.LEFT;
                 positions.add(new C(SnakeGame.GAME_WIDTH_DP - SnakeGame.INIT_BORDER_DP, SnakeGame.INIT_BORDER_DP));
                 break;
             default:
-                throw new IllegalArgumentException("We only support snakes 1 through 4");
+                throw new IllegalArgumentException("We only support snakes with ids 0 through 3");
         }
         window.addKeyListener(keyListener);
     }
 
     @Override
     public void drawScore(Graphics g) {
-        if (!isDead) {
-            Iterator<C> iter = positions.iterator();
-            if (iter.hasNext()) {
-                g.setColor(color);
-                C c = iter.next();
-                g.fillRect(c.x(), c.y(), SnakeGame.BLOCK_SIZE, SnakeGame.BLOCK_SIZE);
-            }
-            g.setColor(ColorUtils.tint(color));
-            while (iter.hasNext()) {
-                C c = iter.next();
-                g.fillRect(c.x(), c.y(), SnakeGame.BLOCK_SIZE, SnakeGame.BLOCK_SIZE);
-            }
-        }
         g.drawString(String.format("Snake %d: %d pts", id + 1, score), SnakeGame.BORDER + SnakeGame.SCORE_OFFSETS_X * id, SnakeGame.SCORE_OFFSET_Y + (SnakeGame.SCORE_BOARD_HEIGHT - g.getFont().getSize()) / 2);
     }
 
