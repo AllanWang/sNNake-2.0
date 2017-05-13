@@ -14,7 +14,6 @@ public class Snake implements SnakeContract {
     private int direction;
     private Color color;
     private KeyListener keyListener;
-    private int size;
     private final int id;
     private int score = 0;
     private boolean isDead = false;
@@ -23,7 +22,6 @@ public class Snake implements SnakeContract {
 
     public Snake(int id, int size, Window window) {
         this.id = id;
-        this.size = size;
         positions = new SnakeQueue(size);
         switch (id + 1) {
             case 1:
@@ -74,7 +72,7 @@ public class Snake implements SnakeContract {
                     }
                 };
                 break;
-            case 3:
+            case 3: //TODO add more key bindings?
                 color = Color.BLUE;
                 direction = SnakeGame.RIGHT;
                 positions.add(new C(SnakeGame.INIT_BORDER_DP, SnakeGame.GAME_HEIGHT_DP - SnakeGame.INIT_BORDER_DP));

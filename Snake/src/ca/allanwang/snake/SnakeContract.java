@@ -15,11 +15,11 @@ public interface SnakeContract {
 
     void score(int points);
 
-    void onKeyPress(int direction);
-
     int getScore();
 
     SnakeQueue getPositions();
+
+    void onKeyPress(int direction);
 
     void terminate(Window window, int flag);
 
