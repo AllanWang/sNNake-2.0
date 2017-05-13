@@ -124,6 +124,7 @@ public class Snake implements SnakeContract {
         positions.clear();
         window.removeKeyListener(keyListener);
         keyListener = null;
+        print("Dead %d", flag);
     }
 
     @Override
@@ -153,6 +154,10 @@ public class Snake implements SnakeContract {
     public void onKeyPress(int direction) {
         if (Math.abs(this.direction - direction) != 2) //cannot go 180
             this.direction = direction;
+    }
+
+    private void print(String s, Object... o) {
+        System.out.println(String.format(s, o));
     }
 
 }

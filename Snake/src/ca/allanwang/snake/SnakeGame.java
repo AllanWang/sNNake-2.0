@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedList;
+import java.util.Iterator;
 
 /**
  * Created by Allan Wang on 2017-05-12.
@@ -13,13 +13,13 @@ import java.util.LinkedList;
 public class SnakeGame extends JPanel implements ActionListener {
 
     //variables for Window
-    private final static int WINDOW_HEIGHT_DP = 200, WINDOW_WIDTH_DP = 500, DELAY = 150,
-            BORDER_DP = 5, SCORE_BOARD_HEIGHT_DP = 50, PLAYER_COUNT = 1, CPU_COUNT = 0,
+    private final static int WINDOW_HEIGHT_DP = 100, WINDOW_WIDTH_DP = 100, DELAY = 150,
+            BORDER_DP = 2, SCORE_BOARD_HEIGHT_DP = 5, PLAYER_COUNT = 1, CPU_COUNT = 0,
             SNAKE_COUNT = PLAYER_COUNT + CPU_COUNT;
 
     final static int GAME_HEIGHT_DP = WINDOW_HEIGHT_DP - BORDER_DP * 3 - SCORE_BOARD_HEIGHT_DP,
             GAME_WIDTH_DP = WINDOW_WIDTH_DP - BORDER_DP * 2,
-            BLOCK_SIZE = 20,
+            BLOCK_SIZE = 10,
             INIT_BORDER_DP = Math.min(GAME_HEIGHT_DP / 5, GAME_WIDTH_DP / 5);
 
     // actual coordinates
@@ -35,9 +35,9 @@ public class SnakeGame extends JPanel implements ActionListener {
     final static int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3;
 
     //flags for movement
-    final static int SCORE_APPLE = 1,  SCORE_CAPTURED_SNAKE = 10;
+    final static int SCORE_APPLE = 1, SCORE_CAPTURED_SNAKE = 10;
     //flags for termination
-    final static int FLAG_TERMINATE_WALL = 0, FLAG_TERMINATE_SELF = -1;
+    final static int FLAG_TERMINATE_WALL = -1;
     // for apple
     private static int appleX;
     private static int appleY;
@@ -158,7 +158,7 @@ public class SnakeGame extends JPanel implements ActionListener {
                     if (sp.equals(c)) return false;
             }
         for (C a : apples)
-            if (a.equals(c)) return false;
+            if (c.equals(a)) return false;
         return true;
     }
 
@@ -172,6 +172,7 @@ public class SnakeGame extends JPanel implements ActionListener {
         snakeLoop:
         for (int i = 0; i < snakes.length; i++) {
             Snake s = snakes[i];
+            if (s.isDead()) continue;
             C head = s.getPositions().getFirst();
             // check for walls
             if (head.x < 0 || head.x > GAME_WIDTH || head.y < 0 || head.y > GAME_HEIGHT) {
@@ -189,23 +190,31 @@ public class SnakeGame extends JPanel implements ActionListener {
             }
             // check for head collision against other snakes
             for (int j = 0; j < snakes.length; j++) {
-                LinkedList<C> positions = (LinkedList<C>) snakes[j].getPositions().clone();
-                if (i == j) positions.removeFirst(); // same snake; don't compare head
-                for (C c : positions)
-                    if (head.equals(c)) {
+                if (snakes[j].isDead()) continue;
+                Iterator<C> iter = snakes[j].getPositions().iterator();
+                if (i == j && iter.hasNext()) iter.next(); // same snake; don't compare head
+                while (iter.hasNext()) {
+                    if (head.equals(iter.next())) {
                         s.terminate(window, j);
                         snakes[j].score(SCORE_CAPTURED_SNAKE);
                         continue snakeLoop;
                     }
+                }
             }
             //nothing happened; just move
             s.step();
         }
+        gameCont = false;
+        for (Snake s : snakes)
+            gameCont |= !s.isDead();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         // TODO Auto-generated method stub
+    }
 
+    private void print(String s, Object... o) {
+        System.out.println(String.format(s, o));
     }
 }
