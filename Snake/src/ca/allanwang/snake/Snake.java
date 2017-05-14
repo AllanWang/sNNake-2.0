@@ -27,7 +27,7 @@ public class Snake implements SnakeContract {
                 color = Color.GREEN;
                 pendingDirection = SnakeGame.RIGHT;
                 positions.add(new C(SnakeGame.INIT_BORDER_DP, SnakeGame.INIT_BORDER_DP));
-                keyListener = new KeyAdapter() {
+                if (window != null) keyListener = new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent e) {
                         switch (e.getKeyCode()) {
@@ -51,7 +51,7 @@ public class Snake implements SnakeContract {
                 color = Color.CYAN;
                 pendingDirection = SnakeGame.LEFT;
                 positions.add(new C(SnakeGame.GAME_WIDTH_DP - SnakeGame.INIT_BORDER_DP, SnakeGame.GAME_HEIGHT_DP - SnakeGame.INIT_BORDER_DP));
-                keyListener = new KeyAdapter() {
+                if (window != null) keyListener = new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent e) {
                         switch (e.getKeyCode()) {
@@ -84,11 +84,12 @@ public class Snake implements SnakeContract {
             default:
                 throw new IllegalArgumentException("We only support snakes with ids 0 through 3");
         }
-        window.addKeyListener(keyListener);
+        if (window != null) window.addKeyListener(keyListener);
     }
 
     @Override
     public void drawScore(Graphics g) {
+        g.setColor(color);
         g.drawString(String.format("Snake %d: %d pts", id + 1, score), SnakeGame.BORDER + SnakeGame.SCORE_OFFSETS_X * id, SnakeGame.SCORE_OFFSET_Y + (SnakeGame.SCORE_BOARD_HEIGHT - g.getFont().getSize()) / 2);
     }
 
@@ -111,7 +112,7 @@ public class Snake implements SnakeContract {
     public void terminate(Window window, int flag) {
         isDead = true;
         positions.clear();
-        window.removeKeyListener(keyListener);
+        if (window != null) window.removeKeyListener(keyListener);
         keyListener = null;
         print("Dead %d", flag);
     }
@@ -139,14 +140,16 @@ public class Snake implements SnakeContract {
         if (isDead) return;
         switch (stage) {
             case 0: // move tail
-                if (positions.size() >= positions.getMaxSize())
+                if (positions.size() >= positions.maxSize())
                     positions.remove().set(map, SnakeGame.MAP_EMPTY);
                 break;
             case 1: // move head
-                //        print(positions.getFirst().toString());
+                // print(positions.getFirst().toString());
                 lastDirection = pendingDirection;
                 positions.getHead().set(map, id | SnakeGame.MAP_SNAKE_MASK);  // previous head is now body
-                prevHeadValue = positions.move(pendingDirection).set(map, id | SnakeGame.MAP_HEAD_MASK);
+                prevHeadValue = positions.move(pendingDirection).get(map);
+                if (!SnakeGame.hasMask(prevHeadValue, SnakeGame.MAP_SNAKE_MASK))
+                    positions.getHead().set(map, id | SnakeGame.MAP_HEAD_MASK);  // did not hit a body; set head color
                 break;
             case 2: // status check
                 callback.sendSnakeStatus(id, prevHeadValue);

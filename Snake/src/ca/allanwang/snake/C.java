@@ -15,11 +15,11 @@ public class C {
     }
 
     public int x() {
-        return x * SnakeGame.BLOCK_SIZE;
+        return x * SnakeGame.BLOCK_SIZE + SnakeGame.BORDER;
     }
 
     public int y() {
-        return y * SnakeGame.BLOCK_SIZE;
+        return y * SnakeGame.BLOCK_SIZE + SnakeGame.BORDER;
     }
 
     @Override
@@ -41,13 +41,15 @@ public class C {
 
     public int set(int[][] map, int toSet) {
         int original = get(map);
-        if (x < 0 || y < 0 || y >= map.length || x >= map[0].length)
-            return SnakeGame.MAP_INVALID;
+        if (original == SnakeGame.MAP_INVALID) return SnakeGame.MAP_INVALID;
         map[y][x] = toSet;
+        // otherwise keep original snake body
         return original;
     }
 
     public int get(int[][] map) {
+        if (x < 0 || y < 0 || y >= map.length || x >= map[0].length)
+            return SnakeGame.MAP_INVALID;
         return map[y][x];
     }
 

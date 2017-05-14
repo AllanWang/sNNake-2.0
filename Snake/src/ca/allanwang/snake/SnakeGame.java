@@ -45,7 +45,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
     final static int FLAG_TERMINATE_WALL = -1;
 
     private final Snake[] snakes = new Snake[SNAKE_COUNT];
-    private int snakeCount = SNAKE_COUNT, applesToSpawn = SNAKE_COUNT;
+    private int applesToSpawn = SNAKE_COUNT;
     private final int[][] map = new int[GAME_HEIGHT_DP][GAME_WIDTH_DP];
 
     //in game stuff
@@ -77,13 +77,13 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
                     if (i == MAP_EMPTY) continue;
                     if (i == MAP_APPLE)
                         drawBlock(g, x, y, ColorUtils.APPLE);
-                    else if ((i & MAP_SNAKE_MASK) == MAP_SNAKE_MASK) {
-                        Snake snake = snakes[i % MAP_SNAKE_MOD];
+                    else if (hasMask(i, MAP_SNAKE_MASK)) {
+                        Snake snake = snakes[mod(i, MAP_SNAKE_MOD)];
                         if (snake.isDead())
                             map[y][x] = MAP_EMPTY;
                         else {
                             Color color = snake.getColor();
-                            if ((i & MAP_HEAD_MASK) != MAP_HEAD_MASK)  // not the head; darken
+                            if (hasMask(i, MAP_HEAD_MASK))  // not the head; darken
                                 color.darker();
                             drawBlock(g, x, y, color);
                         }
@@ -108,7 +108,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
 
     private void drawBlock(Graphics g, int x, int y, Color color) {
         g.setColor(color);
-        g.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        g.fillRect(x * BLOCK_SIZE + BORDER, y * BLOCK_SIZE + BORDER, BLOCK_SIZE, BLOCK_SIZE);
     }
 
     private void logDimensions() {
@@ -133,6 +133,10 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
     }
 
     private void gameReset() {
+        for (int y = 0; y < map.length; y++)
+            for (int x = 0; x < map[y].length; x++)
+                map[y][x] = SnakeGame.MAP_EMPTY;
+        applesToSpawn = SNAKE_COUNT;
         makeSnakes();
         spawnApples();
         if (!gameCont) {
@@ -157,6 +161,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
         }
         // display end game
         repaint();
+        print("End");
     }
 
     public static void main(String args[]) throws InterruptedException {
@@ -259,13 +264,25 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
         if (mapFlag == MAP_APPLE) {
             snakes[snakeId].score(FLAG_SCORE_APPLE);
             applesToSpawn++;
-        } else if ((mapFlag & MAP_SNAKE_MASK) == MAP_SNAKE_MASK) { // snake collision
-            int otherSnake = mapFlag % MAP_SNAKE_MOD;
+        } else if (hasMask(mapFlag, MAP_SNAKE_MASK)) { // snake collision
+            int otherSnake = mod(mapFlag, MAP_SNAKE_MOD);
+            if (otherSnake < 0) otherSnake += MAP_SNAKE_MOD;
             snakes[snakeId].terminate(window, otherSnake);
-            if ((mapFlag & MAP_HEAD_MASK) == MAP_HEAD_MASK)  // other snake died as well
-                snakes[otherSnake].terminate(window, snakeId);
-            else snakes[otherSnake].score(FLAG_SCORE_CAPTURED_SNAKE);
+            if (otherSnake != snakeId) {
+                if (hasMask(mapFlag, MAP_HEAD_MASK))  // other snake died as well
+                    snakes[otherSnake].terminate(window, snakeId);
+                else snakes[otherSnake].score(FLAG_SCORE_CAPTURED_SNAKE);
+            }
         }
+    }
 
+    public static boolean hasMask(int flag, int mask) {
+        return (flag & mask) == mask;
+    }
+
+    public static int mod(int flag, int mod) {
+        int i = flag % mod;
+        if (i < 0) i += mod;
+        return i;
     }
 }

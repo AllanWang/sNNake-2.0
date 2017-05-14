@@ -13,6 +13,7 @@ public class SnakeQueue extends LinkedList<C> {
     private int maxSize;
 
     public SnakeQueue(int maxSize) {
+        if (maxSize < 1) throw new IllegalArgumentException("Max size must be at least 1");
         this.maxSize = maxSize;
     }
 
@@ -32,7 +33,7 @@ public class SnakeQueue extends LinkedList<C> {
     }
 
     public C move(int direction) {
-        C prev = getFirst();
+        C prev = getHead();
         switch (direction) {
             case SnakeGame.UP:
                 add(new C(prev.x, prev.y - 1));
@@ -47,7 +48,7 @@ public class SnakeQueue extends LinkedList<C> {
                 add(new C(prev.x - 1, prev.y));
                 break;
         }
-        return getFirst();
+        return getHead();
     }
 
     @Override
@@ -72,10 +73,10 @@ public class SnakeQueue extends LinkedList<C> {
     }
 
     public void incrementMaxSize(int i) {
-        setMaxSize(getMaxSize() + i);
+        setMaxSize(maxSize() + i);
     }
 
-    public int getMaxSize() {
+    public int maxSize() {
         return maxSize;
     }
 
