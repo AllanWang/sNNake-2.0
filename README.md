@@ -8,8 +8,8 @@ The keybindings for snake players are as follow:
 
 |||
 |---|---|
-Snake 1:    | arrow keys
-Snake 2:    | WASD
+Snake 1:    | WASD
+Snake 2:    | arrow keys
 |||
 
 Game key bindings:

@@ -31,16 +31,16 @@ public class Snake implements SnakeContract {
                     @Override
                     public void keyPressed(KeyEvent e) {
                         switch (e.getKeyCode()) {
-                            case KeyEvent.VK_LEFT:
+                            case KeyEvent.VK_A:
                                 onKeyPress(SnakeGame.LEFT);
                                 break;
-                            case KeyEvent.VK_UP:
+                            case KeyEvent.VK_W:
                                 onKeyPress(SnakeGame.UP);
                                 break;
-                            case KeyEvent.VK_RIGHT:
+                            case KeyEvent.VK_D:
                                 onKeyPress(SnakeGame.RIGHT);
                                 break;
-                            case KeyEvent.VK_DOWN:
+                            case KeyEvent.VK_S:
                                 onKeyPress(SnakeGame.DOWN);
                                 break;
                         }
@@ -55,16 +55,16 @@ public class Snake implements SnakeContract {
                     @Override
                     public void keyPressed(KeyEvent e) {
                         switch (e.getKeyCode()) {
-                            case KeyEvent.VK_A:
+                            case KeyEvent.VK_LEFT:
                                 onKeyPress(SnakeGame.LEFT);
                                 break;
-                            case KeyEvent.VK_W:
+                            case KeyEvent.VK_UP:
                                 onKeyPress(SnakeGame.UP);
                                 break;
-                            case KeyEvent.VK_D:
+                            case KeyEvent.VK_RIGHT:
                                 onKeyPress(SnakeGame.RIGHT);
                                 break;
-                            case KeyEvent.VK_S:
+                            case KeyEvent.VK_DOWN:
                                 onKeyPress(SnakeGame.DOWN);
                                 break;
                         }
