@@ -2,6 +2,8 @@ package ca.allanwang.snake;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -9,7 +11,7 @@ import java.awt.event.KeyListener;
  * Created by Allan Wang on 2017-05-12.
  */
 
-public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract {
+public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract, ActionListener {
 
     // player config
     private final static int PLAYER_COUNT = 2, CPU_COUNT = 0;
@@ -42,7 +44,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
     // flags for movement
     final static int FLAG_SCORE_APPLE = 1, FLAG_SCORE_CAPTURED_SNAKE = 10;
     // flags for termination
-    final static int FLAG_TERMINATE_WALL = -1;
+    final static int FLAG_TERMINATE_WALL = -1, FLAG_TERMINATE_RESET = 0;
 
     private final Snake[] snakes = new Snake[SNAKE_COUNT];
     private int applesToSpawn = SNAKE_COUNT;
@@ -55,6 +57,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
     private JFrame window;
     private Font scoreFont = new Font("Helvetica", Font.PLAIN, 20),
             statusFont = new Font("Helvetica", Font.BOLD, 60);
+    private Timer timer = new Timer(DELAY, this);
 
 
     @Override
@@ -65,12 +68,10 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
 //        g.drawRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         setBackground(ColorUtils.BACKGROUND);
         g.setFont(scoreFont);
-
         if (gameCont) {
             // drawScore game field
             g.setColor(ColorUtils.BORDER);
             g.drawRect(BORDER, BORDER, GAME_WIDTH, GAME_HEIGHT);
-
             for (int y = 0; y < map.length; y++)
                 for (int x = 0; x < map[y].length; x++) {
                     int i = map[y][x];
@@ -91,7 +92,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
                 }
         } else {
             // game over
-            String message = "GAME OVER";
+            String message = "GAME OVER" + System.currentTimeMillis();
             g.setFont(statusFont);
             FontMetrics metr = getFontMetrics(g.getFont());
             g.setColor(Color.GREEN);
@@ -102,19 +103,14 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
             s.drawScore(g);
     }
 
-    private void drawBlock(Graphics g, C coord, Color color) {
-        drawBlock(g, coord.x, coord.y, color);
-    }
-
     private void drawBlock(Graphics g, int x, int y, Color color) {
         g.setColor(color);
         g.fillRect(x * BLOCK_SIZE + BORDER, y * BLOCK_SIZE + BORDER, BLOCK_SIZE, BLOCK_SIZE);
     }
 
-    private void logDimensions() {
-        //TODO
+    public static void main(String args[]) throws InterruptedException {
+        new SnakeGame();
     }
-
 
     public SnakeGame() {
         validateArgs();
@@ -124,6 +120,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
         window.setVisible(true);
         window.setSize(WINDOW_WIDTH + BORDER, WINDOW_HEIGHT);
         window.add(this);
+        validate();
         window.addKeyListener(this);
         gameReset();
     }
@@ -133,44 +130,17 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
     }
 
     private void gameReset() {
+        for (Snake s : snakes)
+            if (s != null) s.terminate(window, FLAG_TERMINATE_RESET);
         for (int y = 0; y < map.length; y++)
             for (int x = 0; x < map[y].length; x++)
                 map[y][x] = SnakeGame.MAP_EMPTY;
         applesToSpawn = SNAKE_COUNT;
-        makeSnakes();
-        spawnApples();
-        if (!gameCont) {
-            gameCont = true;
-            gameLoop();
-        }
-    }
-
-    private void gameLoop() {
-        try {
-            while (gameCont) {
-                moveAndUpdate();
-                spawnApples();
-                repaint();
-                while (pause)
-                    Thread.sleep(DELAY);
-                Thread.sleep(DELAY);
-            }
-        } catch (InterruptedException e) {
-            print("InterruptedException %s", e.getMessage());
-            gameCont = false;
-        }
-        // display end game
-        repaint();
-        print("End");
-    }
-
-    public static void main(String args[]) throws InterruptedException {
-        new SnakeGame();
-    }
-
-    private void makeSnakes() {
         for (int i = 0; i < snakes.length; i++)
             snakes[i] = new Snake(i, 5, window);
+        spawnApples();
+        gameCont = true;
+        timer.start();
     }
 
     private void spawnApples() {
@@ -235,6 +205,7 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_SPACE:
                 pause = !pause;
+                if (!pause) timer.start();
                 break;
             case KeyEvent.VK_ENTER:
                 if (!gameCont)
@@ -284,5 +255,14 @@ public class SnakeGame extends JPanel implements KeyListener, SnakeGameContract 
         int i = flag % mod;
         if (i < 0) i += mod;
         return i;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (!pause && gameCont) {
+            moveAndUpdate();
+            spawnApples();
+            repaint();
+        } else timer.stop();
     }
 }
